@@ -31,7 +31,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    console.log("MongoDB connected");
+    await client.db("admin").command({ ping: 1 }); // ✅ NEW: Ensures connection is alive
+    console.log("✅ Pinged MongoDB successfully");
 
     const db = client.db("Foodify");
     const topFoodsCollection = db.collection("Top-foods");
@@ -222,6 +223,11 @@ async function run() {
 }
 
 run().catch(console.error);
+
+// ✅ NEW: Extra safety for crashes
+process.on("unhandledRejection", (err) => {
+  console.error("💥 Unhandled Rejection:", err);
+});
 
 app.get('/', (req, res) => {
   res.send('🍽️ Foodify server is ready');
